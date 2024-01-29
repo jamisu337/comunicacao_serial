@@ -1,34 +1,24 @@
-#define ledPin 9
+#define potPin 0
+#define botPin 2
 #include <SoftwareSerial.h>
 
-SoftwareSerial Arduino_mestre(10, 11);
+SoftwareSerial Arduino_escravo(10, 11);
 
+int valPot = 0;
 int intensidade = 0;
-int btn = 0;
-String msg;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(ledPin, OUTPUT);
-  Arduino_mestre.begin(9600);
+  Arduino_escravo.begin(9600);
 }
 
 void loop() {
-  if (Arduino_mestre.available()) {
+  valPot = analogRead(potPin);
+  Serial.println(intensidade);
+  intensidade = map(valPot, 0, 1023, 0, 255);
+  Serial.println(digitalRead(botPin));
 
-    intensidade = Arduino_mestre.readStringUntil(';').toInt();
-    //nesta linha ele ler o valor do potenciomentro ate o ; , em seguida trasforma de uma string para um numero inteiro
-    btn = Arduino_mestre.readStringUntil(';').toInt();
-    //nesta linha ele ler o valor do botao ate o ; , em seguida trasforma de uma string para um numero inteiro
+  Arduino_escravo.print(String(intensidade)+";"+String(digitalRead(botPin))+";");
+  //na linha acima o arduino mestre esta mandando as informaçoes do potenciometro e do botao para o arduino escravo
 
-    if (btn == 1) {
-      analogWrite(ledPin, 255);
-    } else if (intensidade < 20) {
-      Serial.println("Baixa luminosidade!");
-    } 
-
-    Serial.flush();
-    analogWrite(ledPin, intensidade);
-    
-  }
 }
